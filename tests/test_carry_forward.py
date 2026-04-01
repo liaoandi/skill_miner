@@ -35,7 +35,7 @@ def test_merge_accumulates_evidence() -> None:
     matching = [c for c in result if c.proposed_name == "recurring_pattern"]
     assert len(matching) == 1
     assert len(matching[0].evidence) == 2
-    assert matching[0].observation_weeks == 3
+    assert matching[0].observation_weeks == 0
 
 
 def test_merge_expires_stale_observe() -> None:

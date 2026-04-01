@@ -30,9 +30,9 @@ def test_write_markdown(tmp_path) -> None:
     ]
     paths = write_output(candidates, tmp_path)
     md = paths[1].read_text()
-    assert "## Accept" in md
+    assert "## 接受" in md
     assert "accepted" in md
-    assert "## Reject" in md
+    assert "## 拒绝" in md
     assert "rejected" in md
 
 

@@ -7,26 +7,30 @@ You use Claude Code, Codex, or other AI coding agents daily. Over time, recurrin
 ## Install
 
 ```bash
-pip install skill-miner[anthropic]
+pip install skill-miner
 ```
 
-Requires Python 3.11+ and `ANTHROPIC_API_KEY` environment variable.
+Requires Python 3.11+. By default, `skill_miner` uses the internal proxy via `TAP_LLM_PROXY_API_KEY`
+and optional `TAP_LLM_PROXY_BASE_URL`. If you need direct Anthropic fallback, install
+`skill-miner[anthropic]` and set `ANTHROPIC_API_KEY`.
 
 ## Usage
 
 ```bash
 skill-miner scan      # Scan session history and extract skill candidates
-skill-miner review    # Review candidates interactively, generate SKILL.md for accepted ones
+skill-miner review    # Review candidates interactively, generate draft SKILL.md for accepted ones
 skill-miner status    # Show detected agents and run history
 ```
 
-Zero-config — auto-detects Claude Code, Codex, OpenClaw, and Gemini CLI. Run `skill-miner init` to customize.
+Zero-config — auto-detects Claude Code, Codex, OpenClaw, and Gemini CLI. By default, the weekly queue is written to `~/.config/skillshare/review_queue/` and review state is stored under `~/.config/skill_miner/state/`. Run `skill-miner init` to customize.
 
 ## How it works
 
-1. **scan** — Reads recent sessions (14 days), sends them to an LLM to identify recurring multi-step workflows, classifies each candidate as accept / observe / reject, and writes output to `~/.config/skill_miner/review_queue/`
-2. **review** — Presents candidates one by one for your decision. Accepted candidates get a SKILL.md generated via LLM, ready to drop into `~/.claude/skills/` or any compatible tool
+1. **scan** — Reads recent sessions (14 days), sends them to an LLM to identify recurring multi-step workflows, classifies each candidate as accept / observe / reject, and writes the review queue to `~/.config/skillshare/review_queue/`
+2. **review** — Presents candidates one by one for your decision. Accepted candidates get a draft `SKILL.md` generated via LLM under `~/.config/skillshare/review_queue/drafts/`
 3. **observe** — Candidates without enough evidence carry forward to the next run, accumulating sessions until promoted or expired
+
+The stable human feedback inbox is `~/.config/skillshare/review_queue/latest_review_inbox.md`. No changes are applied to `~/.config/skillshare/skills/` until a separate manual apply step is approved.
 
 ## Privacy
 
@@ -47,26 +51,30 @@ MIT
 ## 安装
 
 ```bash
-pip install skill-miner[anthropic]
+pip install skill-miner
 ```
 
-需要 Python 3.11+ 和 `ANTHROPIC_API_KEY` 环境变量。
+需要 Python 3.11+。默认通过内部 proxy 调用模型，使用 `TAP_LLM_PROXY_API_KEY`
+和可选的 `TAP_LLM_PROXY_BASE_URL`。如果你要保留直连 Anthropic 兜底，再安装
+`skill-miner[anthropic]` 并设置 `ANTHROPIC_API_KEY`。
 
 ## 使用
 
 ```bash
 skill-miner scan      # 扫描 session 历史，提取 skill 候选
-skill-miner review    # 交互式评审候选，为接受的候选生成 SKILL.md
+skill-miner review    # 交互式评审候选，为接受的候选生成 draft SKILL.md
 skill-miner status    # 显示检测到的 agent 和运行历史
 ```
 
-开箱即用——自动检测 Claude Code、Codex、OpenClaw、Gemini CLI。运行 `skill-miner init` 可自定义配置。
+开箱即用——自动检测 Claude Code、Codex、OpenClaw、Gemini CLI。默认每周队列写入 `~/.config/skillshare/review_queue/`，review 状态写入 `~/.config/skill_miner/state/`。运行 `skill-miner init` 可自定义配置。
 
 ## 工作原理
 
-1. **scan** — 读取近 14 天的 session，用 LLM 识别重复出现的多步骤工作流，将每个候选分类为 accept / observe / reject，结果写入 `~/.config/skill_miner/review_queue/`
-2. **review** — 逐条展示候选供你决策。接受的候选会通过 LLM 生成 SKILL.md，可直接放入 `~/.claude/skills/` 或其他兼容工具
+1. **scan** — 读取近 14 天的 session，用 LLM 识别重复出现的多步骤工作流，将每个候选分类为 accept / observe / reject，结果写入 `~/.config/skillshare/review_queue/`
+2. **review** — 逐条展示候选供你决策。接受的候选会通过 LLM 生成 draft `SKILL.md`，写入 `~/.config/skillshare/review_queue/drafts/`
 3. **observe** — 证据不足的候选会保留到下次运行，持续积累 session 证据，直到被提升或过期
+
+固定的人审入口是 `~/.config/skillshare/review_queue/latest_review_inbox.md`。在单独的人工 apply 步骤批准前，`skill_miner` 不会修改 `~/.config/skillshare/skills/`。
 
 ## 隐私
 

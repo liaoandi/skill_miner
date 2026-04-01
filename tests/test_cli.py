@@ -20,4 +20,4 @@ def test_init_generates_config() -> None:
 def test_status_command() -> None:
     result = CliRunner().invoke(main, ["status"])
     assert result.exit_code == 0
-    assert "Agents:" in result.output
+    assert "Agents：" in result.output

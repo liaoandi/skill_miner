@@ -129,14 +129,14 @@ class Config:
     sources: dict[str, SourceConfig] = field(default_factory=dict)
     # User-facing options (CLI flags)
     days: int = 14
-    model: str = "claude-sonnet-4-20250514"
+    model: str = "claude-sonnet-4-6"
     # Advanced (config file only)
-    existing_skills_dir: Path | None = None
+    existing_skills_dir: Path | None = field(default_factory=lambda: _resolve("~/.config/skillshare/skills/"))
     min_sessions: int = 3
     min_tools: int = 2
     observe_ttl_days: int = 28
     # Internal (not exposed)
-    output_dir: Path = field(default_factory=lambda: _resolve("~/.config/skill_miner/review_queue/"))
+    output_dir: Path = field(default_factory=lambda: _resolve("~/.config/skillshare/review_queue/"))
     state_dir: Path = field(default_factory=lambda: _resolve("~/.config/skill_miner/state/"))
 
 
@@ -181,16 +181,20 @@ def load_config(path: Path | None = None, days: int | None = None, model: str | 
             resolved_dir = _resolve(default_dir)
             sources[name] = SourceConfig(enabled=resolved_dir.is_dir(), session_dir=resolved_dir)
 
-    raw_skills = raw.get("existing_skills_dir")
+    raw_skills = raw.get("existing_skills_dir", "~/.config/skillshare/skills/")
+    raw_output_dir = raw.get("output_dir", "~/.config/skillshare/review_queue/")
+    raw_state_dir = raw.get("state_dir", "~/.config/skill_miner/state/")
 
     return Config(
         sources=sources,
         days=days or raw.get("days", 14),
-        model=model or raw.get("model", "claude-sonnet-4-20250514"),
+        model=model or raw.get("model", "claude-sonnet-4-6"),
         existing_skills_dir=_resolve(raw_skills) if raw_skills else None,
         min_sessions=raw.get("min_sessions", 3),
         min_tools=raw.get("min_tools", 2),
         observe_ttl_days=raw.get("observe_ttl_days", 28),
+        output_dir=_resolve(raw_output_dir),
+        state_dir=_resolve(raw_state_dir),
     )
 
 
@@ -208,4 +212,8 @@ def generate_default_config() -> str:
 
 # Existing skills directory for overlap detection
 # existing_skills_dir: ~/.config/skillshare/skills/
+
+# Weekly review inbox and state
+# output_dir: ~/.config/skillshare/review_queue/
+# state_dir: ~/.config/skill_miner/state/
 """

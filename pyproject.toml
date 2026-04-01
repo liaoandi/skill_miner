@@ -22,12 +22,12 @@ classifiers = [
 ]
 dependencies = [
     "click>=8.0",
+    "openai>=1.50",
     "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
 anthropic = ["anthropic>=0.40"]
-openai = ["openai>=1.50"]
 dev = [
     "pytest>=8.0",
     "pytest-cov",

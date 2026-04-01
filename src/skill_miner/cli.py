@@ -12,11 +12,11 @@ from skill_miner import __version__
 
 @click.group()
 @click.version_option(__version__, prog_name="skill-miner")
-@click.option("-v", "--verbose", is_flag=True, help="Enable verbose logging")
-@click.option("--config", "config_path", type=click.Path(exists=True), help="Config file path")
+@click.option("-v", "--verbose", is_flag=True, help="启用详细日志")
+@click.option("--config", "config_path", type=click.Path(exists=True), help="配置文件路径")
 @click.pass_context
 def main(ctx: click.Context, verbose: bool, config_path: str | None) -> None:
-    """Mine reusable skills from your AI agent session history."""
+    """从 AI agent 会话历史中挖掘可复用 skill。"""
     logging.basicConfig(
         level=logging.DEBUG if verbose else logging.INFO,
         format="%(levelname)s %(name)s: %(message)s",
@@ -27,24 +27,24 @@ def main(ctx: click.Context, verbose: bool, config_path: str | None) -> None:
 
 @main.command()
 def init() -> None:
-    """Generate default configuration file."""
+    """生成默认配置文件。"""
     from skill_miner.config import generate_default_config
 
     config_dir = Path("~/.config/skill_miner").expanduser()
     config_dir.mkdir(parents=True, exist_ok=True)
     config_file = config_dir / "config.yaml"
-    if config_file.exists() and not click.confirm(f"{config_file} already exists. Overwrite?"):
+    if config_file.exists() and not click.confirm(f"{config_file} 已存在，是否覆盖？"):
         return
     config_file.write_text(generate_default_config())
-    click.echo(f"Config written to: {config_file}")
+    click.echo(f"配置已写入：{config_file}")
 
 
 @main.command()
-@click.option("--days", type=int, help="How many days of history to scan (default: 14)")
-@click.option("--model", type=str, help="LLM model to use (default: claude-sonnet-4-20250514)")
+@click.option("--days", type=int, help="扫描最近多少天的历史（默认：14）")
+@click.option("--model", type=str, help="使用的 LLM 模型（默认：claude-sonnet-4-6）")
 @click.pass_context
 def scan(ctx: click.Context, days: int | None, model: str | None) -> None:
-    """Scan session history and extract skill candidates."""
+    """扫描会话历史并提取 skill 候选。"""
     from skill_miner.candidate_extractor import run
     from skill_miner.config import load_config
 
@@ -52,18 +52,18 @@ def scan(ctx: click.Context, days: int | None, model: str | None) -> None:
     result = run(config)
 
     if result.summary:
-        click.echo(f"\nAccepted: {result.summary.accepted}")
-        click.echo(f"Observed: {result.summary.observed}")
-        click.echo(f"Rejected: {result.summary.rejected}")
+        click.echo(f"\naccept：{result.summary.accepted}")
+        click.echo(f"observe：{result.summary.observed}")
+        click.echo(f"reject：{result.summary.rejected}")
     for p in result.output_paths:
         click.echo(f"  {p}")
-    click.echo("\nRun `skill-miner review` to review candidates.")
+    click.echo("\n下一步运行 `skill-miner review` 进入人工 review。")
 
 
 @main.command()
 @click.pass_context
 def status(ctx: click.Context) -> None:
-    """Show detected agents, observation state, and run history."""
+    """查看已检测 agent、观察状态和历史记录。"""
     from skill_miner.candidate_extractor import load_state
     from skill_miner.config import load_config
     from skill_miner.session_reader import get_source_status
@@ -71,33 +71,33 @@ def status(ctx: click.Context) -> None:
     config = load_config(ctx.obj["config_path"])
 
     # Sources
-    click.echo("Agents:")
+    click.echo("Agents：")
     for s in get_source_status(config):
         icon = "+" if s["available"] and s["enabled"] else "-"
-        click.echo(f"  [{icon}] {s['name']}: {s['session_count']} sessions")
+        click.echo(f"  [{icon}] {s['name']}：{s['session_count']} 次会话")
 
     # State
     state = load_state(config.state_dir)
     if not state.last_run:
-        click.echo("\nNo previous runs.")
+        click.echo("\n还没有历史运行记录。")
         return
 
-    click.echo(f"\nLast run: {state.last_run.strftime('%Y-%m-%d %H:%M UTC')}")
+    click.echo(f"\n最近一次运行：{state.last_run.strftime('%Y-%m-%d %H:%M UTC')}")
     if state.observe_candidates:
-        click.echo(f"Observing: {len(state.observe_candidates)}")
+        click.echo(f"正在观察：{len(state.observe_candidates)}")
         for c in state.observe_candidates:
-            click.echo(f"  - {c.proposed_name} (week {c.observation_weeks}, {c.session_count} sessions)")
+            click.echo(f"  - {c.proposed_name}（第 {c.observation_weeks} 周，{c.session_count} 次会话）")
     if state.run_history:
-        click.echo("\nHistory:")
+        click.echo("\n历史：")
         for s in state.run_history[-5:]:
             click.echo(f"  {s.date.strftime('%Y-%m-%d')}: {s.accepted}A / {s.observed}O / {s.rejected}R")
 
 
 @main.command()
-@click.option("--queue", "queue_path", type=click.Path(exists=True), help="Queue file to review")
+@click.option("--queue", "queue_path", type=click.Path(exists=True), help="要 review 的 queue 文件")
 @click.pass_context
 def review(ctx: click.Context, queue_path: str | None) -> None:
-    """Review candidates and generate SKILL.md for accepted ones."""
+    """人工 review 候选，并为 accepted 项生成 draft SKILL.md。"""
     from skill_miner.config import load_config
     from skill_miner.skill_generator import find_latest_queue, load_queue, run_review
 
@@ -107,6 +107,6 @@ def review(ctx: click.Context, queue_path: str | None) -> None:
     else:
         path = find_latest_queue(config.output_dir)
         if path is None:
-            click.echo(f"No queue files in {config.output_dir}\nRun `skill-miner scan` first.")
+            click.echo(f"{config.output_dir} 下还没有 queue 文件。\n请先运行 `skill-miner scan`。")
             return
     run_review(load_queue(path), path, config)

@@ -149,10 +149,12 @@ def _load_codex(session_dir: Path, cutoff: datetime) -> list[Session]:
                     if role in ("user", "assistant", "developer"):
                         content = _extract_content(p.get("content", []))
                         if ts and content:
-                            r = "user" if role == "developer" else role
-                        entries.append(SessionEntry(timestamp=ts, role=r, content=content[:2000]))
-                        if role == "assistant":
-                            tools |= _collect_tools(p.get("content", []))
+                            normalized_role = "user" if role == "developer" else role
+                            entries.append(
+                                SessionEntry(timestamp=ts, role=normalized_role, content=content[:2000])
+                            )
+                            if role == "assistant":
+                                tools |= _collect_tools(p.get("content", []))
                 if ts:
                     modified = ts
         except OSError:
