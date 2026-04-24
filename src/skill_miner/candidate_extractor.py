@@ -164,17 +164,18 @@ class _AnthropicCompatClient:
 
 
 def create_llm_client(config: Config):
+    api_key = _get_env_var(_ANTHROPIC_API_KEY_ENV)
+    if api_key:
+        return _AnthropicCompatClient(api_key=api_key)
+
     proxy_api_key = _get_env_var(_PROXY_API_KEY_ENV)
     if proxy_api_key:
         proxy_base_url = (_get_env_var(_PROXY_BASE_URL_ENV) or _DEFAULT_PROXY_BASE_URL).rstrip("/")
         return _ProxyAnthropicCompatClient(api_key=proxy_api_key, base_url=proxy_base_url)
 
-    api_key = _get_env_var(_ANTHROPIC_API_KEY_ENV)
-    if not api_key:
-        raise RuntimeError(
-            f"Set {_PROXY_API_KEY_ENV} for the internal proxy or {_ANTHROPIC_API_KEY_ENV} for direct Anthropic."
-        )
-    return _AnthropicCompatClient(api_key=api_key)
+    raise RuntimeError(
+        f"Set {_ANTHROPIC_API_KEY_ENV} for direct Anthropic or {_PROXY_API_KEY_ENV} for the internal proxy."
+    )
 
 
 # ---------------------------------------------------------------------------
