@@ -15,7 +15,8 @@ def test_write_json(tmp_path) -> None:
     paths = write_output(candidates, tmp_path)
     assert len(paths) == 2  # json + markdown
     data = json.loads(paths[0].read_text())
-    assert data["summary"]["accepted"] == 1
+    assert data["summary"]["recommended_accept"] == 1
+    assert data["summary"]["human_accept"] == 0
     assert data["candidates"][0]["proposed_name"] == "test_skill"
 
 
@@ -30,7 +31,7 @@ def test_write_markdown(tmp_path) -> None:
     ]
     paths = write_output(candidates, tmp_path)
     md = paths[1].read_text()
-    assert "## 接受" in md
+    assert "## 建议接受（待确认）" in md
     assert "accepted" in md
     assert "## 拒绝" in md
     assert "rejected" in md

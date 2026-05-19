@@ -34,8 +34,8 @@ Done: 5A / 2O / 0R
 Accepted: 5
 Observed: 2
 Rejected: 0
-  ~/.config/skill_miner/review_queue/2026-03-19_skill_candidates.json
-  ~/.config/skill_miner/review_queue/2026-03-19_skill_candidates.md
+  ~/.config/skill_miner/review_queue/2026_03_19_skill_candidates.json
+  ~/.config/skill_miner/review_queue/2026_03_19_skill_candidates.md
 
 Run `skill-miner review` to review candidates.
 ```
@@ -61,7 +61,7 @@ From 75 sessions, the LLM identified 7 recurring workflow patterns:
 ```
 $ skill-miner review
 
-Reviewing 7 candidates from 2026-03-19_skill_candidates.json
+Reviewing 7 candidates from 2026_03_19_skill_candidates.json
 Commands: a=accept, o=observe, r=reject, s=skip, q=quit
 
 ------------------------------------------------------------
@@ -81,7 +81,7 @@ Commands: a=accept, o=observe, r=reject, s=skip, q=quit
 
   Decision: a
 
-Generating SKILL.md for 1 accepted candidates...
+Generating SKILL.md for 1 accepted candidate...
   Generated: ~/.config/skill_miner/review_queue/skills/
              code_cross_review_workflow/SKILL.md
 

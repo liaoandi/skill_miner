@@ -16,11 +16,19 @@ logger = logging.getLogger(__name__)
 
 
 def find_latest_queue(output_dir: Path) -> Path | None:
-    json_files = sorted(
-        (path for path in output_dir.glob("*_skill_candidates.json") if not path.name.startswith("latest_")),
-        reverse=True,
-    )
-    return json_files[0] if json_files else None
+    json_files = [path for path in output_dir.glob("*_skill_candidates.json") if not path.name.startswith("latest_")]
+    if not json_files:
+        return None
+
+    def queue_sort_key(path: Path) -> tuple[datetime, float, str]:
+        prefix = path.name[:10].replace("_", "-")
+        try:
+            queue_date = datetime.strptime(prefix, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+        except ValueError:
+            queue_date = datetime.min.replace(tzinfo=timezone.utc)
+        return (queue_date, path.stat().st_mtime, path.name)
+
+    return max(json_files, key=queue_sort_key)
 
 
 def load_queue(queue_path: Path) -> list[Candidate]:

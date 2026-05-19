@@ -10,9 +10,9 @@ You use Claude Code, Codex, or other AI coding agents daily. Over time, recurrin
 pip install skill-miner
 ```
 
-Requires Python 3.11+. By default, `skill_miner` uses the internal proxy via `TAP_LLM_PROXY_API_KEY`
-and optional `TAP_LLM_PROXY_BASE_URL`. If you need direct Anthropic fallback, install
-`skill-miner[anthropic]` and set `ANTHROPIC_API_KEY`.
+Requires Python 3.11+. If `ANTHROPIC_API_KEY` is set, `skill_miner` uses direct
+Anthropic first. Otherwise it falls back to the internal proxy via
+`TAP_LLM_PROXY_API_KEY` and optional `TAP_LLM_PROXY_BASE_URL`.
 
 ## Usage
 
@@ -54,9 +54,9 @@ MIT
 pip install skill-miner
 ```
 
-需要 Python 3.11+。默认通过内部 proxy 调用模型，使用 `TAP_LLM_PROXY_API_KEY`
-和可选的 `TAP_LLM_PROXY_BASE_URL`。如果你要保留直连 Anthropic 兜底，再安装
-`skill-miner[anthropic]` 并设置 `ANTHROPIC_API_KEY`。
+需要 Python 3.11+。如果设置了 `ANTHROPIC_API_KEY`，`skill_miner` 会优先直连
+Anthropic；否则回退到内部 proxy，使用 `TAP_LLM_PROXY_API_KEY` 和可选的
+`TAP_LLM_PROXY_BASE_URL`。
 
 ## 使用
 

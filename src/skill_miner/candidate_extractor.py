@@ -715,7 +715,7 @@ def _save_state(state_dir: Path, candidates: list[Candidate]) -> None:
 def _write_output(candidates: list[Candidate], output_dir: Path) -> list[Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
     generated_at = datetime.now(timezone.utc)
-    date_str = generated_at.strftime("%Y-%m-%d")
+    date_str = generated_at.strftime("%Y_%m_%d")
     paths: list[Path] = []
 
     accepted = [c for c in candidates if c.decision == Decision.ACCEPT]
@@ -727,7 +727,7 @@ def _write_output(candidates: list[Candidate], output_dir: Path) -> list[Path]:
     json_payload = {
         "generated_at": generated_at.isoformat(),
         "summary": {
-            "total": len(candidates), "accepted": len(accepted),
+            "total": len(candidates), "recommended_accept": len(accepted), "human_accept": 0,
             "observed": len(observed), "rejected": len(rejected),
         },
         "candidates": [_candidate_to_dict(c) for c in candidates],
@@ -741,11 +741,12 @@ def _write_output(candidates: list[Candidate], output_dir: Path) -> list[Path]:
     lines = [
         f"# 每周 Skill 候选提取 — {date_str}",
         "",
-        "> 需要人工 review。当前还没有对 `~/.config/skillshare/skills/` 做任何修改。",
+        "> 需要人工 review。下面是 extractor 建议，不是人工决定；当前还没有对 `~/.config/skillshare/skills/` 做任何修改。",
         "",
         "## 摘要",
         "",
-        f"- 接受：{len(accepted)}",
+        "- 人工接受：0",
+        f"- 建议接受（待确认）：{len(accepted)}",
         f"- 观察：{len(observed)}",
         f"- 拒绝：{len(rejected)}",
         "",
@@ -756,11 +757,11 @@ def _write_output(candidates: list[Candidate], output_dir: Path) -> list[Path]:
         "- 固定 inbox：`~/.config/skillshare/review_queue/latest_review_inbox.md`",
         "- 最新 Markdown 队列：`~/.config/skillshare/review_queue/latest_skill_candidates.md`",
         "- 最新 JSON 队列：`~/.config/skillshare/review_queue/latest_skill_candidates.json`",
-        "- 下一步：`uv run --project ~/Desktop/projects/skill_miner python -m skill_miner review`",
+        "- 下一步：`uv run --project ~/projects/skill_miner python -m skill_miner review`",
         "",
     ]
 
-    for section, items in [("接受", accepted), ("观察", observed)]:
+    for section, items in [("建议接受（待确认）", accepted), ("观察", observed)]:
         if items:
             lines.append(f"## {section}\n")
             for c in items:
@@ -795,7 +796,8 @@ def _write_output(candidates: list[Candidate], output_dir: Path) -> list[Path]:
         "# 每周 Skill Review 收件箱",
         "",
         f"- 生成时间：{generated_at.isoformat()}",
-        f"- 接受：{len(accepted)}",
+        "- 人工接受：0",
+        f"- 建议接受（待确认）：{len(accepted)}",
         f"- 观察：{len(observed)}",
         f"- 拒绝：{len(rejected)}",
         "",
@@ -809,7 +811,7 @@ def _write_output(candidates: list[Candidate], output_dir: Path) -> list[Path]:
         "## 必要的人工步骤",
         "",
         "- 任何 skill 变更前，先 review 最新队列。",
-        "- 运行 `uv run --project ~/Desktop/projects/skill_miner python -m skill_miner review` 记录决策。",
+        "- 运行 `uv run --project ~/projects/skill_miner python -m skill_miner review` 记录决策。",
         "- 被接受的候选只会在 `~/.config/skillshare/review_queue/drafts/` 下生成 draft。",
         "- 当前还没有对 `~/.config/skillshare/skills/` 做任何修改。",
         "- 在 review 完成且明确批准 apply 前，不要执行 `skillshare sync`。",
